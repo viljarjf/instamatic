@@ -53,7 +53,7 @@ def write_tiff(fname: str, data, header: dict = None):
     fname = Path(fname).with_suffix('.tiff')
 
     with tifffile.TiffWriter(fname) as f:
-        f.write(data=data, software='instamatic', description=header)
+        f.write(data=data, shape=data.shape, software='instamatic', description=header)
 
 
 def read_tiff(fname: str) -> (np.array, dict):

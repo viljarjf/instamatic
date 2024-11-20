@@ -208,7 +208,7 @@ class Experiment(ExperimentBase):
         self.image_binsize = kwargs.get('image_binsize', self.ctrl.cam.default_binsize)
         self.image_exposure = kwargs.get('image_exposure', self.ctrl.cam.default_exposure)
         self.image_spotsize = kwargs.get('image_spotsize', 4)
-        # self.magnification   = kwargs["magnification"]
+        # self.magnification   = kwargs.get("magnification", 2500)
         self.image_threshold = kwargs.get('image_threshold', 100)
         # do not store brightness to self, as this is set later when calibrating the direct beam
         image_brightness = kwargs.get('diff_brightness', 38000)
@@ -216,15 +216,15 @@ class Experiment(ExperimentBase):
         try:
             self.calib_beamshift = CalibBeamShift.from_file()
         except OSError:
-            self.ctrl.mode.set('mag1')
-            self.ctrl.store('image')
-            self.ctrl.brightness.set(image_brightness)
-            self.ctrl.tem.setSpotSize(self.image_spotsize)
-
             self.calib_beamshift = CalibBeamShift.live(self.ctrl, outdir=self.calibdir)
+        self.ctrl.mode.set('mag1')
+        self.ctrl.store('image')
+        self.ctrl.brightness.set(image_brightness)
+        self.ctrl.tem.setSpotSize(self.image_spotsize)
 
-            self.magnification = self.ctrl.magnification.value
-            self.log.info('Brightness=%s', self.ctrl.brightness)
+
+        self.magnification = self.ctrl.magnification.value
+        self.log.info('Brightness=%s', self.ctrl.brightness)
 
         self.pixelsize_mag1 = (
             config.calibration['mag1']['pixelsize'][self.magnification] / 1000
@@ -243,15 +243,15 @@ class Experiment(ExperimentBase):
         try:
             self.calib_directbeam = CalibDirectBeam.from_file()
         except OSError:
-            self.ctrl.mode.set('diff')
-            self.ctrl.store('diffraction')
-            self.ctrl.tem.setSpotSize(self.diff_spotsize)
-
             self.calib_directbeam = CalibDirectBeam.live(self.ctrl, outdir=self.calibdir)
+        self.ctrl.mode.set('diff')
+        self.ctrl.store('diffraction')
+        self.ctrl.tem.setSpotSize(self.diff_spotsize)
 
-            self.diff_brightness = self.ctrl.brightness.value
-            self.diff_difffocus = self.ctrl.difffocus.value
-            self.diff_cameralength = self.ctrl.magnification.value
+
+        self.diff_brightness = self.ctrl.brightness.value
+        self.diff_difffocus = self.ctrl.difffocus.value
+        self.diff_cameralength = self.ctrl.magnification.value
 
         self.diff_pixelsize = config.calibration['diff']['pixelsize'][self.diff_cameralength]
         self.change_spotsize = self.diff_spotsize != self.image_spotsize
@@ -541,6 +541,7 @@ class Experiment(ExperimentBase):
             h['exp_crystal_coords'] = crystal_coords
 
             write_hdf5(outfile, img, header=h)
+            write_tiff(outfile, img, header=h)
 
             ncrystals = len(crystal_coords)
             if ncrystals == 0:

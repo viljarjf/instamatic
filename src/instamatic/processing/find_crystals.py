@@ -52,7 +52,7 @@ def whiten(obs, check_finite=False):
     return obs / std_dev, std_dev
 
 
-def segment_crystals(img, r=101, offset=5, footprint=5, remove_carbon_lacing=True):
+def segment_crystals(img, r=101, offset=5, footprint=5, remove_carbon_lacing=False):
     """
     r: `int`
        blocksize to calculate local threshold value

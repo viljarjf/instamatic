@@ -3,10 +3,12 @@ from __future__ import annotations
 import random
 import time
 from typing import Tuple
+import logging
 
 from instamatic import config
 from instamatic.exceptions import TEMValueError
 from instamatic.microscope.base import MicroscopeBase
+from instamatic.utils.logging import get_instance_method_logger
 
 NTRLMAPPING = {
     'GUN1': 0,
@@ -32,6 +34,8 @@ ZERO = 32768
 MAX = 65535
 MIN = 0
 
+logger = logging.getLogger(__name__)
+log_method = get_instance_method_logger(logger)
 
 class SimuMicroscope(MicroscopeBase):
     """Simulates a microscope connection.
@@ -241,29 +245,36 @@ class SimuMicroscope(MicroscopeBase):
     def _is_moving(self) -> bool:
         return any(self._stage_dict[key]['is_moving'] for key in self._stage_dict.keys())
 
+    @log_method
     def getHTValue(self) -> float:
         return self._HT
 
+    @log_method
     def getCurrentDensity(self) -> float:
         rand_val = (random.random() - 0.5) * 10000
         return self.CurrentDensity_value + rand_val
 
+    @log_method
     def getBrightness(self) -> int:
         return self.Brightness_value
 
+    @log_method
     def setBrightness(self, value: int):
         self.Brightness_value = value
 
+    @log_method
     def getMagnification(self) -> int:
         if self.getFunctionMode() == 'diff':
             return self.Magnification_value_diff
         else:
             return self.Magnification_value
 
+    @log_method
     def setNeutral(self, *args):
         """Neutralize given deflectors."""
         pass
 
+    @log_method
     def setMagnification(self, value: int):
         current_mode = self.getFunctionMode()
 
@@ -277,6 +288,7 @@ class SimuMicroscope(MicroscopeBase):
         else:
             self.Magnification_value = value
 
+    @log_method
     def getMagnificationIndex(self) -> int:
         value = self.getMagnification()
         current_mode = self.getFunctionMode()
@@ -285,6 +297,7 @@ class SimuMicroscope(MicroscopeBase):
 
         return selector
 
+    @log_method
     def getMagnificationAbsoluteIndex(self) -> int:
         index = self.getMagnificationIndex()
         mode = self.getFunctionMode()
@@ -295,6 +308,7 @@ class SimuMicroscope(MicroscopeBase):
 
         return index
 
+    @log_method
     def setMagnificationIndex(self, index: int):
         current_mode = self.getFunctionMode()
 
@@ -320,6 +334,7 @@ class SimuMicroscope(MicroscopeBase):
         self.setMagnificationIndex(idx - 1)
         return 1
 
+    @log_method
     def getMagnificationRanges(self) -> dict:
         mag_ranges = {}
         for i, mode in enumerate(self.FUNCTION_MODES):
@@ -330,48 +345,61 @@ class SimuMicroscope(MicroscopeBase):
 
         return mag_ranges
 
+    @log_method
     def getGunShift(self) -> Tuple[int, int]:
         return self.GunShift_x, self.GunShift_y
 
+    @log_method
     def setGunShift(self, x: int, y: int):
         self.GunShift_x = x
         self.GunShift_y = y
 
+    @log_method
     def getGunTilt(self) -> Tuple[int, int]:
         return self.GunTilt_x, self.GunTilt_y
 
+    @log_method
     def setGunTilt(self, x: int, y: int):
         self.GunTilt_x = x
         self.GunTilt_y = y
 
+    @log_method
     def getBeamShift(self) -> Tuple[int, int]:
         return self.BeamShift_x, self.BeamShift_y
 
+    @log_method
     def setBeamShift(self, x: int, y: int):
         self.BeamShift_x = x
         self.BeamShift_y = y
 
+    @log_method
     def getBeamTilt(self) -> Tuple[int, int]:
         return self.BeamTilt_x, self.BeamTilt_y
 
+    @log_method
     def setBeamTilt(self, x: int, y: int):
         self.BeamTilt_x = x
         self.BeamTilt_y = y
 
+    @log_method
     def getImageShift1(self) -> Tuple[int, int]:
         return self.ImageShift1_x, self.ImageShift1_y
 
+    @log_method
     def setImageShift1(self, x: int, y: int):
         self.ImageShift1_x = x
         self.ImageShift1_y = y
 
+    @log_method
     def getImageShift2(self):
         return self.ImageShift2_x, self.ImageShift2_y
 
+    @log_method
     def setImageShift2(self, x: int, y: int):
         self.ImageShift2_x = x
         self.ImageShift2_y = y
 
+    @log_method
     def getStagePosition(self) -> Tuple[int, int, int, int, int]:
         return (
             self.StagePosition_x,
@@ -390,31 +418,37 @@ class SimuMicroscope(MicroscopeBase):
         while self.isStageMoving():
             time.sleep(delay)
 
+    @log_method
     def setStageX(self, value: int, wait: bool = True):
         self.StagePosition_x = value
         if wait:
             self.waitForStage()
 
+    @log_method
     def setStageY(self, value: int, wait: bool = True):
         self.StagePosition_y = value
         if wait:
             self.waitForStage()
 
+    @log_method
     def setStageZ(self, value: int, wait: bool = True):
         self.StagePosition_z = value
         if wait:
             self.waitForStage()
 
+    @log_method
     def setStageA(self, value: int, wait: bool = True):
         self.StagePosition_a = value
         if wait:
             self.waitForStage()
 
+    @log_method
     def setStageB(self, value: int, wait: bool = True):
         self.StagePosition_b = value
         if wait:
             self.waitForStage()
 
+    @log_method
     def setStageXY(self, x: int, y: int, wait: bool = True):
         self.StagePosition_x = x
         self.StagePosition_y = y
@@ -424,6 +458,7 @@ class SimuMicroscope(MicroscopeBase):
     def stopStage(self):
         pass
 
+    @log_method
     def setStagePosition(
         self,
         x: int = None,
@@ -449,18 +484,22 @@ class SimuMicroscope(MicroscopeBase):
             if y is not None:
                 self.setStageY(y, wait=wait)
 
+    @log_method
     def getRotationSpeed(self) -> int:
         return self._stage_dict['a']['speed_setting']
 
+    @log_method
     def setRotationSpeed(self, value: int):
         self._stage_dict['a']['speed_setting'] = value
         self._stage_dict['a']['speed'] = 10.0 * (value / 12)
 
+    @log_method
     def getFunctionMode(self) -> str:
         """Mag1, mag2, lowmag, samag, diff."""
         mode = self.FunctionMode_value
         return FUNCTION_MODES[mode]
 
+    @log_method
     def setFunctionMode(self, value: int):
         """Mag1, mag2, lowmag, samag, diff."""
         if isinstance(value, str):
@@ -470,28 +509,34 @@ class SimuMicroscope(MicroscopeBase):
                 raise TEMValueError(f'Unrecognized function mode: {value}')
         self.FunctionMode_value = value
 
+    @log_method
     def getDiffFocus(self, confirm_mode: bool = True) -> int:
         if not self.getFunctionMode() == 'diff':
             raise TEMValueError("Must be in 'diff' mode to get DiffFocus")
         return self.DiffractionFocus_value
 
+    @log_method
     def setDiffFocus(self, value: int, confirm_mode: bool = True):
         """IL1."""
         if not self.getFunctionMode() == 'diff':
             raise TEMValueError("Must be in 'diff' mode to set DiffFocus")
         self.DiffractionFocus_value = value
 
+    @log_method
     def setIntermediateLens1(self, value: int):
         """IL1."""
         self.IntermediateLens1_value = value
 
+    @log_method
     def getIntermediateLens1(self):
         """IL1."""
         return self.IntermediateLens1_value
 
+    @log_method
     def getDiffShift(self) -> Tuple[int, int]:
         return self.DiffractionShift_x, self.DiffractionShift_y
 
+    @log_method
     def setDiffShift(self, x: int, y: int):
         self.DiffractionShift_x = x
         self.DiffractionShift_y = y
@@ -502,67 +547,86 @@ class SimuMicroscope(MicroscopeBase):
     def isBeamBlanked(self) -> bool:
         return self.beamblank
 
+    @log_method
     def setBeamBlank(self, mode: bool):
         """True/False or 1/0."""
         self.beamblank = mode
 
+    @log_method
     def getCondensorLensStigmator(self) -> Tuple[int, int]:
         return self.condensorlensstigmator_x, self.condensorlensstigmator_y
 
+    @log_method
     def setCondensorLensStigmator(self, x: int, y: int):
         self.condensorlensstigmator_x = x
         self.condensorlensstigmator_y = y
 
+    @log_method
     def getIntermediateLensStigmator(self) -> Tuple[int, int]:
         return self.intermediatelensstigmator_x, self.intermediatelensstigmator_y
 
+    @log_method
     def setIntermediateLensStigmator(self, x: int, y: int):
         self.intermediatelensstigmator_x = x
         self.intermediatelensstigmator_y = y
 
+    @log_method
     def getObjectiveLensStigmator(self) -> Tuple[int, int]:
         return self.objectivelensstigmator_x, self.objectivelensstigmator_y
 
+    @log_method
     def setObjectiveLensStigmator(self, x: int, y: int):
         self.objectivelensstigmator_x = x
         self.objectivelensstigmator_y = y
 
+    @log_method
     def getSpotSize(self) -> int:
         """0-based indexing for GetSpotSize, add 1 for consistency."""
         return self.spotsize
 
+    @log_method
     def getScreenPosition(self) -> str:
         return self.screenposition_value
 
+    @log_method
     def setScreenPosition(self, value: int):
         """Value = 'up' or 'down'."""
         if value not in ('up', 'down'):
             raise TEMValueError(f'No such screen position: `{value}`.')
         self.screenposition_value = value
 
+    @log_method
     def setSpotSize(self, value: int):
         self.spotsize = value
 
+    @log_method
     def getCondensorLens1(self) -> int:
         return self.condensorlens1_value
 
+    @log_method
     def getCondensorLens2(self) -> int:
         return self.condensorlens2_value
 
+    @log_method
     def getCondensorMiniLens(self) -> int:
         return self.condensorminilens_value
 
+    @log_method
     def getObjectiveLenseCoarse(self) -> int:
         return self.objectivelensecoarse_value
 
+    @log_method
     def setObjectiveLenseCoarse(self, value: int):
         self.objectivelensecoarse_value = value
 
+    @log_method
     def getObjectiveLenseFine(self) -> int:
         return self.objectivelensefine_value
 
+    @log_method
     def setObjectiveLenseFine(self, value: int):
         self.objectivelensefine_value = value
 
+    @log_method
     def getObjectiveMiniLens(self) -> int:
         return self.objectiveminilens_value

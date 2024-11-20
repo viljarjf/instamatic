@@ -13,6 +13,8 @@ default_cam_interface = config.camera.interface
 
 
 def get_cam(interface: str = None):
+    from instamatic.camera.simulate.camera import CameraSimulation
+    return CameraSimulation
     """Grabs the camera object defined by `interface`"""
 
     simulate = config.settings.simulate
@@ -59,6 +61,7 @@ def Camera(name: str = None, as_stream: bool = False, use_server: bool = False):
         as_stream = False  # precaution
     else:
         cam_cls = get_cam(interface)
+        
 
         if interface in ('timepix', 'pytimepix'):
             tpx_config = (
@@ -70,6 +73,7 @@ def Camera(name: str = None, as_stream: bool = False, use_server: bool = False):
             as_stream = False  # override `as_stream` for this interface
         else:
             cam = cam_cls(name=name)
+
 
     if as_stream:
         if cam.streamable:
