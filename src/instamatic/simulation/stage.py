@@ -12,6 +12,8 @@ from instamatic.simulation.warnings import NotImplementedWarning
 
 
 class Stage:
+    # TODO this name is ambiguous. Should instead just handle tilting and movement.
+    # Have some other class for handling crystal positions ect
     def __init__(
         self,
         num_crystals: int = 100_000,
@@ -101,6 +103,51 @@ class Stage:
             degrees=True,
         ).as_matrix()
 
+    def image_coordinates_to_sample_coordinates(
+        self,
+        shape: tuple[int, int],
+        x: np.ndarray,
+        y: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """_summary_
+
+        Parameters
+        ----------
+        shape : tuple[int, int]
+            _description_
+        x : np.ndarray
+            _description_
+        y : np.ndarray
+            _description_
+
+        Returns
+        -------
+        tuple[np.ndarray, np.ndarray]
+            _description_
+        """
+        if self.alpha_tilt != 0 or self.beta_tilt != 0:
+            warnings.warn(
+                'Tilting is not fully implemented yet', NotImplementedWarning, stacklevel=2
+            )
+        # https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection
+        n = self.rotation_matrix @ np.array([0, 0, 1])
+        p0 = self.origin
+        l = np.array([0, 0, 1])  # noqa: E741
+        l0 = np.array(
+            [
+                x.flatten(),
+                y.flatten(),
+                np.zeros_like(x).flatten(),
+            ]
+        )
+
+        p = l0 + np.array([0, 0, 1])[:, np.newaxis] * np.dot(-l0.T + p0, n) / np.dot(l, n)
+
+        x_out, y_out, z_out = self.rotation_matrix.T @ p
+        x_out = x_out.reshape(shape)
+        y_out = y_out.reshape(shape)
+        return x_out, y_out
+
     def image_extent_to_sample_coordinates(
         self,
         shape: tuple[int, int],
@@ -130,31 +177,10 @@ class Stage:
         tuple[np.ndarray, np.ndarray]
             x, y. 2D arrays of floats
         """
-        if self.alpha_tilt != 0 or self.beta_tilt != 0:
-            warnings.warn(
-                'Tilting is not fully implemented yet', NotImplementedWarning, stacklevel=2
-            )
-        # https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection
-        n = self.rotation_matrix @ np.array([0, 0, 1])
-        p0 = self.origin
-        l = np.array([0, 0, 1])  # noqa: E741
-        l0 = np.array(
-            [
-                p.flatten()
-                for p in np.meshgrid(
-                    np.linspace(x_min, x_max, shape[1]),
-                    np.linspace(y_min, y_max, shape[0]),
-                    [0],
-                )
-            ]
+        x, y = np.meshgrid(
+            np.linspace(x_min, x_max, shape[1]), np.linspace(y_min, y_max, shape[0])
         )
-
-        p = l0 + np.array([0, 0, 1])[:, np.newaxis] * np.dot(-l0.T + p0, n) / np.dot(l, n)
-
-        x, y, z = self.rotation_matrix.T @ p
-        x = x.reshape(shape)
-        y = y.reshape(shape)
-        return x, y
+        return self.image_coordinates_to_sample_coordinates(shape, x, y)
 
     def get_image(
         self,
