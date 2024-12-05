@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from .beam import Beam
+from instamatic.simulation.beam import Beam
 
 
 class OpticalComponent(ABC):

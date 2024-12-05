@@ -19,6 +19,8 @@ class Aperture(OpticalComponent):
 
     index: int = 0
 
+    inserted: bool = False
+
     def radius(self) -> float:
         """Get the radius of the current aperture, in m."""
         return self.radii[self.index]

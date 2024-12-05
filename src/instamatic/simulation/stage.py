@@ -103,28 +103,15 @@ class Stage:
             degrees=True,
         ).as_matrix()
 
+    def get_position(self) -> tuple[float, float, float, float, float]:
+        return (self.x, self.y, self.z, self.alpha_tilt, self.beta_tilt)
+
     def image_coordinates_to_sample_coordinates(
         self,
         shape: tuple[int, int],
         x: np.ndarray,
         y: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray]:
-        """_summary_
-
-        Parameters
-        ----------
-        shape : tuple[int, int]
-            _description_
-        x : np.ndarray
-            _description_
-        y : np.ndarray
-            _description_
-
-        Returns
-        -------
-        tuple[np.ndarray, np.ndarray]
-            _description_
-        """
         if self.alpha_tilt != 0 or self.beta_tilt != 0:
             warnings.warn(
                 'Tilting is not fully implemented yet', NotImplementedWarning, stacklevel=2
@@ -135,9 +122,9 @@ class Stage:
         l = np.array([0, 0, 1])  # noqa: E741
         l0 = np.array(
             [
-                x.flatten(),
-                y.flatten(),
-                np.zeros_like(x).flatten(),
+                x.flatten() - self.x,
+                y.flatten() - self.y,
+                np.zeros_like(x).flatten() - self.z,
             ]
         )
 

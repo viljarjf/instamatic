@@ -6,7 +6,7 @@ from .beam import Beam
 from .optical_component import OpticalComponent
 
 
-@dataclass(frozen=True)
+@dataclass
 class Lens(OpticalComponent):
     focal_length: float
     """[mm]"""
@@ -42,6 +42,24 @@ class Lens(OpticalComponent):
         # TODO this is much easier to get from real microscopes.
         # Therefore, the angles should depend on focal length + magnification, instead
         return self.collection_angle / self.convergence_angle
+
+    def increase_focus(self):
+        # TODO
+        raise NotImplementedError()
+
+    def decrease_focus(self):
+        # TODO
+        raise NotImplementedError()
+
+    @property
+    def focus(self) -> float:
+        # TODO
+        return 100
+
+    @focus.setter
+    def focus(self, val: float):
+        # TODO
+        raise NotImplementedError()
 
     def propagate_beam(self, beam: Beam) -> Beam:
         """Pass a beam through the lens.
